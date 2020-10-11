@@ -21,11 +21,15 @@ class MainWindow:
 
         self.font = pygame.font.SysFont('consolas', 40)
         
-        self.player = Character(50, 10, 950, 1, sprites = [
-                pygame.transform.scale(load_sprite('characters\\first_char.png', (255, 255, 255)), (400, 400)),
-                pygame.transform.scale(load_sprite('characters\\second_char.png', (255, 255, 255)), (400, 400)),
-                pygame.transform.scale(load_sprite('characters\\third_char.png', (255, 255, 255)), (400, 400)),
-        ])
+        self.characters = { # Add player buttons
+            'dave': Character(50, 10, 950, 1, exp_color = (0, 0, 255), sprites = [
+                pygame.transform.scale(load_sprite('characters\\dave\\1.png', (255, 255, 255)), (400, 400)),
+                pygame.transform.scale(load_sprite('characters\\dave\\2.png', (255, 255, 255)), (400, 400)),
+                pygame.transform.scale(load_sprite('characters\\dave\\3.png', (255, 255, 255)), (400, 400)),
+                pygame.transform.scale(load_sprite('characters\\dave\\4.png', (255, 255, 255)), (400, 400))]),
+        }
+        
+        self.current_character = self.characters['dave']
 
         self.buttons = ButtonContainer([
                 Button(10, 10, text = 'Todo menu', command = self.todo_menu.main, font = pygame.font.SysFont('consolas', 20), fg = (255, 255, 255),
@@ -35,7 +39,6 @@ class MainWindow:
         self.particles = ParticleContainer()
 
         self.last_time = pygame.time.get_ticks()
-        self.clock = pygame.time.Clock()
 
     def event_loop(self):
         for event in pygame.event.get():
@@ -46,8 +49,8 @@ class MainWindow:
                 self.window_size = (event.w, event.h)
                 self.window = pygame.display.set_mode(self.window_size, pygame.RESIZABLE)
 
-            elif event.type == pygame.KEYDOWN:
-                self.player.exp += 10
+            elif event.type == pygame.KEYDOWN: 
+                self.current_character.exp += 10
 
     def draw(self):
         self.window.fill((10, 10, 20))
@@ -55,12 +58,15 @@ class MainWindow:
         self.buttons.draw(self.window)
         self.particles.draw(self.window)
         
-        self.window.blit(self.player.current_sprite, (self.window_size[0] / 2 - self.player.current_sprite.get_rect().width / 2, self.window_size[1] / 2 - self.player.current_sprite.get_rect().height / 2))
-        self.window.blit(self.font.render(str(self.player.level), True, (255, 255, 255)), (self.window_size[0] / 2 - self.player.current_sprite.get_rect().width / 2 + 20, self.window_size[1] / 2
-                                                    - self.player.current_sprite.get_rect().height / 2))
+        self.window.blit(self.current_character.current_sprite, (self.window_size[0] / 2 - self.current_character.current_sprite.get_rect().width / 2,
+                                                                 self.window_size[1] / 2 - self.current_character.current_sprite.get_rect().height / 2))
+        self.window.blit(self.font.render(str(self.current_character.level), True, (255, 255, 255)), (self.window_size[0] / 2 - self.current_character.current_sprite.get_rect().width / 2 + 20,
+                                                    self.window_size[1] / 2
+                                                    - self.current_character.current_sprite.get_rect().height / 2))
 
-        pygame.draw.rect(self.window, (0, 0, 255), (self.window_size[0] / 2 - self.player.current_sprite.get_rect().width / 2, self.window_size[1] / 2 + self.player.current_sprite.get_rect().height / 2,
-                                                    self.player.exp / 2, 50)) 
+        pygame.draw.rect(self.window, self.current_character.exp_color, (self.window_size[0] / 2 - self.current_character.current_sprite.get_rect().width / 2,
+                                                    self.window_size[1] / 2 + self.current_character.current_sprite.get_rect().height / 2,
+                                                    self.current_character.exp / 2, 50)) 
         
         pygame.display.update()
         
@@ -73,29 +79,28 @@ class MainWindow:
             self.delta_time *= 60
             self.last_time = pygame.time.get_ticks()
 
-            self.player.handle_level_up()
+            self.current_character.handle_level_up()
 
-            if self.player.prev_level < self.player.level:
-                if self.player.level % 5 == 0:
+            if self.current_character.prev_level < self.current_character.level:
+                if self.current_character.level % 5 == 0:
                     particle_num = 130
                     size_range = (1, 30)
                 else:
                     particle_num = 60
-                    size_range = (1, 20) 
+                    size_range = (1, 20)
+                    
                 for _ in range(particle_num): 
                     self.particles.append(CircleDrop(self.window_size[0] / 2, self.window_size[1] / 2,
                                              random.randint(size_range[0], size_range[1]), fall_vel = random.uniform(-0.3, 0.3), color = random.choice([(200, 0, 0),
                                              (200, 0, 0), (200, 200, 0), (255, 183, 0)]), light = True, light_color = (50, 0, 0), decay_start = 1000, x_vel = random.randint(-10, 10),
                                              y_vel = random.randint(-5, 5)))
 
-                self.player.prev_level = self.player.level
+                self.current_character.prev_level = self.current_character.level
             
             self.particles.update(self.delta_time)
             self.buttons.update()
 
             self.draw()
-            self.clock.tick()
-##            print(self.clock.get_fps())
 
 main_window = MainWindow()
 main_window.main()
