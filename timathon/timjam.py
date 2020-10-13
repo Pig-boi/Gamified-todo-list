@@ -23,10 +23,10 @@ class MainWindow:
         
         self.characters = { # Add player buttons
             'dave': Character(50, 10, 950, 1, exp_color = (0, 0, 255), sprites = [
-                pygame.transform.scale(load_sprite('characters\\dave\\1.png', (255, 255, 255)), (400, 400)),
-                pygame.transform.scale(load_sprite('characters\\dave\\2.png', (255, 255, 255)), (400, 400)),
-                pygame.transform.scale(load_sprite('characters\\dave\\3.png', (255, 255, 255)), (400, 400)),
-                pygame.transform.scale(load_sprite('characters\\dave\\4.png', (255, 255, 255)), (400, 400))]),
+                pygame.transform.scale(load_sprite('characters\\dave\\1.png', (255, 255, 255)), (500, 500)),
+                pygame.transform.scale(load_sprite('characters\\dave\\2.png', (255, 255, 255)), (500, 500)),
+                pygame.transform.scale(load_sprite('characters\\dave\\3.png', (255, 255, 255)), (500, 500)),
+                pygame.transform.scale(load_sprite('characters\\dave\\4.png', (255, 255, 255)), (500, 500))]),
         }
         
         self.current_character = self.characters['dave']

@@ -17,10 +17,9 @@ class TodoMenu:
         self.button_font = pygame.font.SysFont('consolas', 20)
         self.font = pygame.font.SysFont('consolas', 25)
 
-        self.task_coor = [10, 90]
-        self.task_id = 0
         self.tasks = ButtonContainer()
         self.selected_tasks = []
+        self.task_start_y = 100
         
         self.buttons = ButtonContainer([
                     Button(self.parent.window_size[0] - self.button_font.size('Back')[0], # Make these buttons position themselves when resizing 
@@ -33,7 +32,7 @@ class TodoMenu:
                            show_box = False, fg = (255, 255, 255), command = self.complete_tasks),
                     Button(self.button_font.size('Complete')[0] + 30, self.parent.window_size[1] - self.button_font.size('Complete')[1], self.button_font.size('Abandon')[0], 
                            self.button_font.size('Abandon')[1], text = 'Abandon', font = self.button_font,
-                           show_box = False, fg = (255, 255, 255), command = lambda: print('continue this | abandon button'))
+                           show_box = False, fg = (255, 255, 255), command = self.abandon_task)
             ])
 
         self.particles = ParticleContainer()
@@ -53,22 +52,21 @@ class TodoMenu:
     def add_task(self, text, input_window = None):
         if input_window is not None:
             input_window.destroy()
-        if text.strip() != '' :
+        if text.strip() != '':
             self.tasks.append({
-                        'button': Button(self.task_coor[0], self.task_coor[1], self.font.size(text)[0], self.font.size(text)[1], text = text,
-                                       font = self.font, show_box = False, fg = (255, 255, 255)),
-                        'id': self.task_id
+                        'button': Button(10, 0, self.font.size(text)[0], self.font.size(text)[1], text = text,
+                                       font = self.font, bg = (10, 10, 20), fg = (255, 255, 255)),
+                        'id': None
 
             })
-    
-            self.task_coor[1] += 40 
-            self.task_id += 1
 
     def select_task(self, task_id):
         if self.tasks[task_id]['button'].fg == (0, 0, 255):
             self.tasks[task_id]['button'].fg = (255, 255, 255)
+            self.tasks[task_id]['button'].bg = (10, 10, 20)
             self.selected_tasks.remove(self.tasks[task_id])
         else:
+            self.tasks[task_id]['button'].bg = (10, 30, 10)
             self.tasks[task_id]['button'].fg = (0, 0, 255)
 
             if self.tasks[task_id] not in self.selected_tasks:
@@ -79,19 +77,30 @@ class TodoMenu:
             self.parent.current_character.exp += 150 # Make it add the experience points when the player hits 'back'
             
             for _ in range(15):
-                self.particles.append(CircleDrop(task['button'].rect.x + task['button'].font.size(task['button'].text)[0] / 2, task['button'].rect.y,
-                                                 random.randint(1, 20), fall_vel = random.uniform(-0.2, 0.2), decay_start = 0, light = True, x_vel = random.randint(-3, 3)))
+                self.particles.append(CircleDrop(task['button'].rect.x + task['button'].font.size(task['button'].text)[0] / 2, task['button'].rect.y, 
+                                                 random.randint(1, 20), fall_vel = random.uniform(-0.2, 0.2), decay_start = 0, light = True,
+                                                 x_vel = random.randint(-3, 3), color = self.parent.current_character.exp_color))
             try:
                 self.tasks.remove(task)
             except ValueError:
                 pass
+            
+        for task in self.selected_tasks:
+            self.selected_tasks.remove(task)    
+            
+    def abandon_task(self):
 
         for task in self.selected_tasks:
-            self.selected_tasks.remove(task)
+            for _ in range(15):
+                self.particles.append(CircleDrop(task['button'].rect.x + task['button'].font.size(task['button'].text)[0] / 2, task['button'].rect.y, 
+                                             random.randint(1, 20), fall_vel = random.uniform(-0.2, 0.2), decay_start = 0, light = True,
+                                             x_vel = random.randint(-3, 3), color = (255, 0, 0), light_color = (50, 0, 0)))
+        
+            self.tasks.remove(task)
             
-    def abandon_task(self, task):
-        pass
-
+        for task in self.selected_tasks:
+            self.selected_tasks.remove(task)
+                
     def event_loop(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -101,7 +110,7 @@ class TodoMenu:
                 self.parent.window = pygame.display.set_mode(self.parent.window_size, pygame.RESIZABLE)
                 
                 self.buttons = ButtonContainer([
-                            Button(self.parent.window_size[0] - self.button_font.size('Back')[0], # Make these buttons position themselves when resizing 
+                            Button(self.parent.window_size[0] - self.button_font.size('Back')[0], 
                                    10, text = 'Back', fg = (255, 0, 0), font = self.button_font,
                                    show_box = False, command = self.parent.main),
                             Button(10, 40, 120, 20, text = 'Add a task', font = self.button_font, 
@@ -142,8 +151,8 @@ class TodoMenu:
 
             for task in self.tasks:
                 task['button'].command = lambda: self.select_task(task['id'])
-                task['id'] = self.tasks.index(task)
+                task['button'].rect.y = self.tasks.index(task) * 40 + self.task_start_y
+                task['id'] = self.tasks.index(task) 
                 
             self.draw()
-
     
