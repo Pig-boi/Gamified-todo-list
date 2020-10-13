@@ -95,8 +95,11 @@ class TodoMenu:
                 self.particles.append(CircleDrop(task['button'].rect.x + task['button'].font.size(task['button'].text)[0] / 2, task['button'].rect.y, 
                                              random.randint(1, 20), fall_vel = random.uniform(-0.2, 0.2), decay_start = 0, light = True,
                                              x_vel = random.randint(-3, 3), color = (255, 0, 0), light_color = (50, 0, 0)))
-        
-            self.tasks.remove(task)
+
+            try:
+                self.tasks.remove(task)
+            except ValueError:
+                pass
             
         for task in self.selected_tasks:
             self.selected_tasks.remove(task)

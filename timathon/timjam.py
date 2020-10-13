@@ -26,7 +26,8 @@ class MainWindow:
                 pygame.transform.scale(load_sprite('characters\\dave\\1.png', (255, 255, 255)), (500, 500)),
                 pygame.transform.scale(load_sprite('characters\\dave\\2.png', (255, 255, 255)), (500, 500)),
                 pygame.transform.scale(load_sprite('characters\\dave\\3.png', (255, 255, 255)), (500, 500)),
-                pygame.transform.scale(load_sprite('characters\\dave\\4.png', (255, 255, 255)), (500, 500))]),
+                pygame.transform.scale(load_sprite('characters\\dave\\4.png', (255, 255, 255)), (500, 500))
+            ])
         }
         
         self.current_character = self.characters['dave']
